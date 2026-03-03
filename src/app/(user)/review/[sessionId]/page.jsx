@@ -1,5 +1,9 @@
 'use client'
 
+import AttributeForms from "@/app/components/user/AttributeForms"
+import CheckboxGroup from "@/app/components/user/CheckboxGroup"
+import RatingStars from "@/app/components/user/RatingStars"
+import ReviewEditor from "@/app/components/user/ReviewEditor"
 import { useParams } from "next/navigation"
 import { useMemo, useState } from "react"
 
@@ -18,7 +22,7 @@ const CHECK_OPTIONS = [
 
 function buildMockReview({ rating, tags, attrs }){
 	const tagText = tags.length ? `特に「${tags.join('・')}」が印象的でした。` : ''
-	const purpose = attrs.purpose ? `（${attrs.purpose}で利用）` : ''
+	const gender = attrs.gender ? `（${attrs.gender}で利用）` : ''
 	const age = attrs.age ? ` ${attrs.age}です。` : ''
 	const base =
     rating >= 4
@@ -27,7 +31,7 @@ function buildMockReview({ rating, tags, attrs }){
 			? '全体的に良かったです。気になる点はありますが、また利用したいと思いました。'
 			: '今回は少し残念でした。次回は改善されていると嬉しいです。'
 
-	return `【口コミ案】${purpose}\n${base}${age}\n${tagText}\nまた来店したいと思います。`
+	return `【口コミ案】${gender}\n${base}${age}\n${tagText}\nまた来店したいと思います。`
 }
 
 
@@ -62,6 +66,13 @@ const page =() => {
 		setStep(2);
 	}
 
+	const handleConfirm = () => {
+		if(!text.trim()) return
+		// 本番は confirm API → used_at 更新 → done へ
+    	// いまはクエリでratingを渡して画面確認
+		location.href = `done/${sessionId}?rating=${rating}`
+	}
+
 
 	return (
 		<main className="mx-auto max-w-[720px] px-4 py-6">
@@ -77,7 +88,7 @@ const page =() => {
 				<div className="rounded-2xl border p-4">
 					<h2 className="font-semibold">星の評価</h2>
 					<div className="mt-3">
-						{/* ここに星が表示されるはずです */}
+						<RatingStars value={rating} onChange={setRating} />
 					</div>
 				</div>
 
@@ -85,7 +96,7 @@ const page =() => {
 					<h2 className="font-semibold">良かった点（複数選択OK）</h2>
 					<p className="mt-1 text-sm text-gray-600">当てはまるものを選んでください</p>
 					<div className="mt-3">
-						{/* ここにチェックボックスが表示されるはずです */}
+						<CheckboxGroup options={CHECK_OPTIONS} value={selected} onChange={setSelected} />
 					</div>
 				</div>
 
@@ -93,7 +104,7 @@ const page =() => {
 					<h2 className="font-semibold">属性（任意）</h2>
 					<p className="mt-1 text-sm text-gray-600">未入力でもOKです</p>
 					<div className="mt-3">
-						{/* ここに属性のradioボタンが表示されるはずです */}
+						<AttributeForms value={attrs} onChange={setAttrs}/>
 					</div>
 				</div>
 
@@ -116,7 +127,7 @@ const page =() => {
 					<h2 className="font-semibold">口コミ（編集できます）</h2>
 					<div className="mt-1 text-sm text-gray-600">必要に応じて文章を調整してください</div>
 					<div className="mt-3">
-						{/* ここにレビュー用のエディタ表示 */}
+						<ReviewEditor value={text} onChange={setText} />
 					</div>
 				</div>
 
@@ -137,7 +148,7 @@ const page =() => {
 				</div>
 
 				<div className="text-xs text-gray-500">
-					セッションID：<span className="font-mono">{sessionID}</span>
+					セッションID：<span className="font-mono">{sessionId}</span>
 				</div>
 
 			</section>
