@@ -12,8 +12,6 @@ const DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 180 // 180日
 export async function GET(request, context) {
 	const { storeCode } = await context.params
 
-	console.log(request, context);
-
 	const store = await findStoreByCode(storeCode)
 
 	if (!store) {
