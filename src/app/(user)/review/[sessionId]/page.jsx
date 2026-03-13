@@ -51,7 +51,7 @@ const page =() => {
 		return selected.map((id) => map.get(id)).filter(Boolean);
 	},[selected])
 
-	const canGenerate = rating > 0 // MVPはこれだけでOK（厳密にすると離脱増えがち）
+	const canGenerate = rating > 0 && selected.length > 0 // MVPはこれだけでOK（厳密にすると離脱増えがち）
 
 	const handleGenerate = async () => {
 		if(!canGenerate || loading) return
@@ -66,11 +66,34 @@ const page =() => {
 		setStep(2);
 	}
 
-	const handleConfirm = () => {
-		if(!text.trim()) return
-		// 本番は confirm API → used_at 更新 → done へ
-    	// いまはクエリでratingを渡して画面確認
-		location.href = `done/${sessionId}?rating=${rating}`
+	const handleConfirm = async () => {
+	if (!text.trim()) return
+
+	try {
+		const response = await fetch('/api/review/confirm', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+				sessionId,
+				rating,
+				finalText: text,
+			}),
+		})
+
+		const result = await response.json()
+
+		if (!response.ok || !result.ok) {
+		alert(result.message || '確定に失敗しました')
+		return
+		}
+
+		location.href = `/done/${sessionId}?rating=${rating}`
+	} catch (error) {
+		console.error(error)
+		alert('通信エラーが発生しました')
+	}
 	}
 
 
