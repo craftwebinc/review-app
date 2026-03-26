@@ -65,10 +65,11 @@ export async function GET(request, context) {
 		})
 	}
 
-	const response = NextResponse.redirect(
-		new URL(`/review/${session.id}`, request.url)
-	)
+	const origin = request.nextUrl.origin
 
+	const response = NextResponse.redirect(
+		new URL(`/review/${session.id}`, origin)
+	)
 	if (shouldSetCookie) {
 		response.cookies.set({
 			name: DEVICE_COOKIE_NAME,
@@ -87,5 +88,5 @@ export async function GET(request, context) {
 	console.log('host:', request.headers.get('host'))
 	console.log('x-forwarded-host:', request.headers.get('x-forwarded-host'))
 	console.log('x-forwarded-proto:', request.headers.get('x-forwarded-proto'))
-	// return response
+	return response;
 }
