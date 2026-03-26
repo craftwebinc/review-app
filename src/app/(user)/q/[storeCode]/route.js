@@ -81,5 +81,11 @@ export async function GET(request, context) {
 		})
 	}
 
-	return response
+	console.log('request.url:', request.url)
+	console.log('request.nextUrl.href:', request.nextUrl?.href)
+	console.log('request.nextUrl.origin:', request.nextUrl?.origin)
+	console.log('host:', request.headers.get('host'))
+	console.log('x-forwarded-host:', request.headers.get('x-forwarded-host'))
+	console.log('x-forwarded-proto:', request.headers.get('x-forwarded-proto'))
+	// return response
 }
