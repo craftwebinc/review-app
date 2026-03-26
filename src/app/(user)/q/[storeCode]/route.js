@@ -9,13 +9,26 @@ import {
 const DEVICE_COOKIE_NAME = 'review_device_id'
 const DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 180 // 180日
 
+function getRequestOrigin(request) {
+	const forwardedProto = request.headers.get('x-forwarded-proto')
+	const forwardedHost = request.headers.get('x-forwarded-host')
+	const host = request.headers.get('host')
+
+	const proto = forwardedProto || 'https'
+	const resolvedHost = forwardedHost || host
+
+	return `${proto}://${resolvedHost}`
+}
+
 export async function GET(request, context) {
 	const { storeCode } = await context.params
 
 	const store = await findStoreByCode(storeCode)
 
+	const origin = getRequestOrigin(request)
+
 	if (!store) {
-		return NextResponse.redirect(new URL('/expired', request.url))
+		return NextResponse.redirect(new URL('/expired', origin))
 	}
 
 	let deviceId = request.cookies.get(DEVICE_COOKIE_NAME)?.value
@@ -33,7 +46,7 @@ export async function GET(request, context) {
 	})
 
 	if (confirmedSession) {
-		const response = NextResponse.redirect(new URL('/used', request.url))
+		const response = NextResponse.redirect(new URL('/used', origin))
 
 		if (shouldSetCookie) {
 			response.cookies.set({
@@ -64,8 +77,6 @@ export async function GET(request, context) {
 			deviceId,
 		})
 	}
-
-	const origin = request.nextUrl.origin
 
 	const response = NextResponse.redirect(
 		new URL(`/review/${session.id}`, origin)
