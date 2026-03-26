@@ -87,5 +87,5 @@ export async function GET(request, context) {
 	console.log('host:', request.headers.get('host'))
 	console.log('x-forwarded-host:', request.headers.get('x-forwarded-host'))
 	console.log('x-forwarded-proto:', request.headers.get('x-forwarded-proto'))
-	// return response
+	return <></>
 }
